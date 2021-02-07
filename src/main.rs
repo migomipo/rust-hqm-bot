@@ -1,7 +1,6 @@
 use std::env;
 use std::net::{IpAddr, SocketAddr};
-use nalgebra::{Vector2};
-use crate::hqm_game::{HQMMessage, HQMTeam, HQMPlayerInput, HQMGameState, HQMGameStateObject};
+use crate::hqm_game::{HQMMessage, HQMPlayerInput, HQMGameState};
 use crate::hqm_bot::{HQMBotLogic, HQMBotSession};
 
 mod hqm_parse;
@@ -36,7 +35,7 @@ async fn main() -> std::io::Result<()> {
     let name = args[3].clone();
     let addr = SocketAddr::new(addr, port);
 
-    HQMBotSession::new(name, EmptyBot {}).start(addr).await;
+    HQMBotSession::new(name, EmptyBot {}).start(addr).await?;
 
     Ok(())
 

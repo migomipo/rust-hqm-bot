@@ -1,12 +1,5 @@
 use std::cmp::min;
-use nalgebra::{Vector3, U1, U3, Matrix3};
-use nalgebra::storage::Storage;
-
-pub fn convert_matrix_to_network(b: u8, v: &Matrix3<f32>) -> (u32, u32) {
-    let r1 = convert_rot_column_to_network(b, &v.column(1));
-    let r2 = convert_rot_column_to_network(b, &v.column(2));
-    (r1, r2)
-}
+use nalgebra::{Vector3, Matrix3};
 
 #[allow(dead_code)]
 pub fn convert_matrix_from_network(b: u8, v1: u32, v2: u32) -> Matrix3<f32>{
@@ -72,74 +65,6 @@ fn convert_rot_column_from_network(b: u8, v: u32) -> Vector3<f32> {
     }
     (temp1 + temp2 + temp3).normalize()
 
-}
-
-fn convert_rot_column_to_network<S: Storage<f32, U3, U1>>(b: u8, v: &nalgebra::Matrix<f32, U3, U1, S>) -> u32 {
-
-    let uxp = Vector3::x();
-    let uxn = -uxp;
-    let uyp = Vector3::y();
-    let uyn = -uyp;
-    let uzp = Vector3::z();
-    let uzn = -uzp;
-
-    let a = [
-        [&uyp, &uxp, &uzp],
-        [&uyp, &uzp, &uxn],
-        [&uyp, &uzn, &uxp],
-        [&uyp, &uxn, &uzn],
-        [&uzp, &uxp, &uyn],
-        [&uxn, &uzp, &uyn],
-        [&uxp, &uzn, &uyn],
-        [&uzn, &uxn, &uyn]
-    ];
-
-    let mut res = 0;
-
-    if v[0] < 0.0 {
-        res |= 1
-    }
-    if v[2] < 0.0 {
-        res |= 2
-    }
-    if v[1] < 0.0 {
-        res |= 4
-    }
-    let mut temp1 = a[res as usize][0].clone();
-    let mut temp2 = a[res as usize][1].clone();
-    let mut temp3 = a[res as usize][2].clone();
-    for i in (3..b).step_by(2) {
-        let temp4 = (temp1 + temp2).normalize ();
-        let temp5 = (temp2 + temp3).normalize ();
-        let temp6 = (temp1 + temp3).normalize ();
-
-        let a1 = (temp4-temp6).cross(&(v-temp6));
-        if a1.dot(&v) < 0.0 {
-            let a2 = (temp5-temp4).cross(&(v-temp4));
-            if a2.dot(&v) < 0.0 {
-                let a3 = (temp6-temp5).cross(&(v-temp5));
-                if a3.dot (&v) < 0.0 {
-                    res |= 3 << i;
-                    temp1 = temp4;
-                    temp2 = temp5;
-                    temp3 = temp6;
-                } else {
-                    res |= 2 << i;
-                    temp1 = temp6;
-                    temp2 = temp5;
-                }
-            } else {
-                res |= 1 << i;
-                temp1 = temp4;
-                temp3 = temp5;
-            }
-        } else {
-            temp2 = temp4;
-            temp3 = temp6;
-        }
-
-    }
-    res
 }
 
 #[derive(Debug)]

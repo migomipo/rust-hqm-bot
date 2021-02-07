@@ -45,7 +45,7 @@ impl<T: HQMBotLogic> HQMBotSession<T> {
         let local_addr: SocketAddr = SocketAddr::from(([0, 0, 0, 0], 0));
 
         let socket = Arc::new(UdpSocket::bind(local_addr).await?);
-        socket.connect(server_address).await;
+        socket.connect(server_address).await?;
 
 
 
@@ -69,7 +69,7 @@ impl<T: HQMBotLogic> HQMBotSession<T> {
         };
 
 
-        self.send_join_message(&socket).await;
+        self.send_join_message(&socket).await?;
         loop {
             if let Some(x) = msg_receiver.recv().await {
                 self.handle_message (x.as_ref(), &socket).await;
@@ -78,12 +78,12 @@ impl<T: HQMBotLogic> HQMBotSession<T> {
     }
 
 
-    async fn handle_message (& mut self, msg: &[u8], socket: &UdpSocket) {
+    async fn handle_message (& mut self, msg: &[u8], socket: &UdpSocket) -> std::io::Result<()> {
         let mut parser = HQMMessageReader::new(&msg);
 
         let header = parser.read_bytes_aligned(4);
         if header != GAME_HEADER {
-            return;
+            return Ok(());
         }
 
         let command = parser.read_byte_aligned();
@@ -338,7 +338,7 @@ impl<T: HQMBotLogic> HQMBotSession<T> {
 
         }
 
-        self.send_update (input, chat, socket).await;
+        self.send_update (input, chat, socket).await
     }
 
     async fn send_update (& mut self, input: HQMPlayerInput, chat: Option<String>, socket: &UdpSocket) -> std::io::Result<()> {
@@ -400,7 +400,7 @@ impl<T: HQMBotLogic> HQMBotSession<T> {
         let bytes_written = writer.get_bytes_written();
 
         let slice = &buf[0..bytes_written];
-        let x = socket.send(slice).await?;
+        socket.send(slice).await?;
         Ok(())
 
     }
@@ -420,7 +420,7 @@ impl<T: HQMBotLogic> HQMBotSession<T> {
         let bytes_written = writer.get_bytes_written();
 
         let slice = &buf[0..bytes_written];
-        let x = socket.send(slice).await?;
+        socket.send(slice).await?;
         Ok(())
 
     }
