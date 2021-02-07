@@ -203,8 +203,8 @@ impl<T: HQMBotLogic> HQMBotSession<T> {
                         rot,
                         stick_pos,
                         stick_rot,
-                        head_rot: packet.head_rot as f32 / 8192.0 + 2.0,
-                        body_rot: packet.body_rot as f32 / 8192.0 + 2.0
+                        head_rot: (packet.head_rot as f32 - 16384.0) / 8192.0,
+                        body_rot: (packet.body_rot as f32 - 16384.0) / 8192.0
                     })
                 }
             }).collect();
