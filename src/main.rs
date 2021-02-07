@@ -35,7 +35,6 @@ async fn main() -> std::io::Result<()> {
     let port = args[2].parse::<u16> ().unwrap();
     let name = args[3].clone();
     let addr = SocketAddr::new(addr, port);
-    let team_arg = &args[4];
 
     HQMBotSession::new(name, EmptyBot {}).start(addr).await;
 
