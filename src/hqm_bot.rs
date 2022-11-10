@@ -224,7 +224,7 @@ impl<T: HQMBotLogic> HQMBotSession<T> {
                         _ => None
                     };
                     let object_index = match parser.read_bits(6) {
-                        u32::MAX => None,
+                        63 => None,
                         x => Some(x as usize)
                     };
                     let object_index = object_index.zip(team);
@@ -262,11 +262,11 @@ impl<T: HQMBotLogic> HQMBotSession<T> {
                         _ => HQMTeam::Blue,
                     };
                     let goal_player_index = match parser.read_bits(6) {
-                        u32::MAX => None,
+                        63 => None,
                         x => Some(x as usize)
                     };
                     let assist_player_index = match parser.read_bits(6) {
-                        u32::MAX => None,
+                        63 => None,
                         x => Some(x as usize)
                     };
                     if i >= self.known_msgpos as u32 {
@@ -278,7 +278,7 @@ impl<T: HQMBotLogic> HQMBotSession<T> {
                     }
                 } else if message_type == 2 {
                     let player_index = match parser.read_bits(6) {
-                        u32::MAX => None,
+                        63 => None,
                         x => Some(x as usize)
                     };
                     let size = parser.read_bits(6);
